@@ -3,11 +3,11 @@ import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const navLinks = [
-  { label: "Home", href: "#" },
-  { label: "Episodes", href: "#episodes" },
-  { label: "Autism quiz", href: "#" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Episodes", href: "/#episodes" },
+  { label: "Autism quiz", href: "/autism-quiz" },
+  { label: "About", href: "/#about" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 const Header = () => {
