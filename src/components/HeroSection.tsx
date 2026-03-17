@@ -59,7 +59,7 @@ const HeroSection = () => {
                 rel="noopener noreferrer"
                 className="hover:scale-110 transition-transform duration-300"
               >
-                <img src={platform.icon} alt={platform.alt} className="w-16 h-16 rounded-xl" />
+                <img src={platform.icon} alt={platform.alt} className="w-16 h-16" />
               </a>
             ))}
           </div>
