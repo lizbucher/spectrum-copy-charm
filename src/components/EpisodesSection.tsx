@@ -28,7 +28,7 @@ const EpisodesSection = () => {
             Recent Episodes
           </h2>
           <a
-            href="#"
+            href="/episodes"
             className="inline-flex items-center gap-2 text-primary font-body font-semibold text-sm hover:gap-3 transition-all duration-300 fade-in"
           >
             View all Episodes <ArrowRight size={16} />
