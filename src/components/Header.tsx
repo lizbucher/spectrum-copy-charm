@@ -7,7 +7,7 @@ const navLinks = [
   { label: "Episodes", href: "/episodes" },
   { label: "Autism quiz", href: "/autism-quiz" },
   { label: "About", href: "/about" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const Header = () => {
