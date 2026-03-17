@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import aboutPortrait from "@/assets/about-portrait.png";
+import aboutPortrait from "@/assets/about-mic-portrait.png";
 import episodeThumb from "@/assets/episode-thumb.jpg";
 
 const AboutSection = () => {
