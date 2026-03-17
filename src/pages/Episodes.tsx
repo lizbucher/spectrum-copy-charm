@@ -167,7 +167,7 @@ const Episodes = () => {
         <div className="flex items-center justify-center gap-8 md:gap-12">
           {platformLinks.map((p) => (
             <a key={p.alt} href={p.href} target="_blank" rel="noopener noreferrer">
-              <img src={p.icon} alt={p.alt} className="w-16 h-16 md:w-20 md:h-20 rounded-xl hover:scale-110 transition-transform" />
+              <img src={p.icon} alt={p.alt} className="w-16 h-16 md:w-20 md:h-20 hover:scale-110 transition-transform" />
             </a>
           ))}
         </div>
