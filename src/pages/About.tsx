@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import hostPortrait from "@/assets/host-portrait.png";
 import aboutPortrait from "@/assets/about-portrait.png";
 import spotifyIcon from "@/assets/spotify-icon.png";
