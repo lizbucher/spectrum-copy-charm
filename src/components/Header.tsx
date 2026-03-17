@@ -4,7 +4,7 @@ import logo from "@/assets/logo.png";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Episodes", href: "/#episodes" },
+  { label: "Episodes", href: "/episodes" },
   { label: "Autism quiz", href: "/autism-quiz" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/#contact" },
