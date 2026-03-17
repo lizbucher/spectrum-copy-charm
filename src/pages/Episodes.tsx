@@ -4,6 +4,7 @@ import spotifyIcon from "@/assets/spotify-icon.png";
 import amazonMusicIcon from "@/assets/amazon-music-icon.png";
 import applePodcastsIcon from "@/assets/apple-podcasts-icon.png";
 import iheartIcon from "@/assets/iheart-icon.png";
+import Footer from "@/components/Footer";
 
 const platformLinks = [
   { icon: spotifyIcon, alt: "Spotify", href: "https://open.spotify.com/show/59IYYFkvsbUh3Su78ltJhx" },
