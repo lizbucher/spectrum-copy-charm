@@ -205,6 +205,8 @@ const About = () => {
           </p>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

@@ -202,6 +202,8 @@ const Episodes = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };
