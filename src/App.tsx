@@ -8,6 +8,7 @@ import AutismQuiz from "./pages/AutismQuiz.tsx";
 import Episodes from "./pages/Episodes.tsx";
 import About from "./pages/About.tsx";
 import Contact from "./pages/Contact.tsx";
+import Waitlist from "./pages/Waitlist.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,7 +25,7 @@ const App = () => (
           <Route path="/episodes" element={<Episodes />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/waitlist" element={<Waitlist />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

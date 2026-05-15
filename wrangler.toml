@@ -1,0 +1,29 @@
+# Cloudflare Pages + Worker config for Femme On the Spectrum
+#
+# Deploy via: npx wrangler pages deploy dist --project-name=femme-on-the-spectrum
+# Or connect this repo to Cloudflare Pages via the dashboard for auto-deploy on push.
+#
+# To set secrets: npx wrangler secret put RESEND_API_KEY (etc)
+
+name = "femme-on-the-spectrum"
+compatibility_date = "2026-05-15"
+pages_build_output_dir = "dist"
+
+# Worker code at /worker/index.ts is deployed as a Pages Function via the [[...]] convention,
+# but since we want a single Worker for the whole /api/* surface, we bind it as a function below.
+
+# === D1 database binding ===
+[[d1_databases]]
+binding = "DB"
+database_name = "femme-on-the-spectrum"
+database_id = "96eeb6b6-f61c-48a5-8d9f-f7973e750883"
+
+# === R2 bucket binding (uncomment after R2 is enabled and bucket is created) ===
+# [[r2_buckets]]
+# binding = "ASSETS"
+# bucket_name = "femme-on-the-spectrum-assets"
+
+# Secrets (set via Cloudflare dashboard or CLI, never commit these):
+#   RESEND_API_KEY        Resend API key
+#   FROM_EMAIL            Verified sender, e.g. "Liz <hello@femmeonthespectrum.com>"
+#   CONTACT_TO_EMAIL      Where contact form submissions are sent

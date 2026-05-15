@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
+import { api } from "@/lib/api";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -11,26 +14,30 @@ const ContactSection = () => {
     const name = form.name.trim();
     const email = form.email.trim();
     const message = form.message.trim();
-
     if (!name) errs.name = "Name is required";
     else if (name.length > 100) errs.name = "Name must be under 100 characters";
-
     if (!email) errs.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Please enter a valid email";
     else if (email.length > 255) errs.email = "Email must be under 255 characters";
-
     if (!message) errs.message = "Message is required";
     else if (message.length > 2000) errs.message = "Message must be under 2000 characters";
-
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    setServerError("");
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      await api.sendContact({ name: form.name.trim(), email: form.email.trim(), message: form.message.trim() });
       setSubmitted(true);
       setForm({ name: "", email: "", message: "" });
+    } catch (err: any) {
+      setServerError(err?.message || "Could not send right now. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -49,70 +56,46 @@ const ContactSection = () => {
             <Send size={32} className="mx-auto mb-4 text-primary" />
             <h3 className="text-xl font-display font-bold text-foreground mb-2">Message Sent!</h3>
             <p className="text-sm font-body text-muted-foreground mb-6">
-              Thank you for reaching out. We'll get back to you soon.
+              Thank you for reaching out. I'll get back to you soon.
             </p>
-            <button
-              onClick={() => setSubmitted(false)}
-              className="text-sm font-body font-semibold text-primary hover:underline"
-            >
+            <button onClick={() => setSubmitted(false)}
+              className="text-sm font-body font-semibold text-primary hover:underline">
               Send another message
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 fade-in fade-in-delay-2" noValidate>
             <div>
-              <label htmlFor="name" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">
-                Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                maxLength={100}
-                value={form.name}
+              <label htmlFor="name" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">Name</label>
+              <input id="name" type="text" maxLength={100} value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                placeholder="Your name"
-              />
+                placeholder="Your name" />
               {errors.name && <p className="text-xs font-body text-destructive mt-1">{errors.name}</p>}
             </div>
-
             <div>
-              <label htmlFor="email" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                maxLength={255}
-                value={form.email}
+              <label htmlFor="email" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">Email</label>
+              <input id="email" type="email" maxLength={255} value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
-                placeholder="you@email.com"
-              />
+                placeholder="you@example.com" />
               {errors.email && <p className="text-xs font-body text-destructive mt-1">{errors.email}</p>}
             </div>
-
             <div>
-              <label htmlFor="message" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">
-                Message
-              </label>
-              <textarea
-                id="message"
-                rows={5}
-                maxLength={2000}
-                value={form.message}
+              <label htmlFor="message" className="block text-xs font-body font-semibold text-foreground uppercase tracking-wider mb-2">Message</label>
+              <textarea id="message" maxLength={2000} value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
+                rows={6}
                 className="w-full px-4 py-3 rounded-xl border-2 border-border bg-background font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none"
-                placeholder="What's on your mind?"
-              />
+                placeholder="What's on your mind?" />
               {errors.message && <p className="text-xs font-body text-destructive mt-1">{errors.message}</p>}
             </div>
-
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-full font-body font-semibold text-sm hover:opacity-90 transition-opacity"
-            >
-              Send Message <Send size={16} />
+            {serverError && (
+              <p className="text-sm font-body text-destructive bg-destructive/10 rounded-lg px-4 py-3">{serverError}</p>
+            )}
+            <button type="submit" disabled={submitting}
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-3.5 rounded-full font-body font-semibold text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">
+              {submitting ? <><Loader2 size={16} className="animate-spin" /> Sending…</> : <>Send Message <Send size={16} /></>}
             </button>
           </form>
         )}
