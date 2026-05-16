@@ -1,25 +1,35 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import episodeThumb from "@/assets/episode-thumb.jpg";
 
-const episodes = [
-  {
-    title: 'The Syllables of Violence- Renee Nicole Good (Or: Why "Fucking Bitch" is a Death Threat)',
-    excerpt:
-      'In this episode of "Femme on the Spectrum", hosted by Elizabeth, she discusses the deep-seated rage that some men exhibit towards women who challenge their perceived entitlement, particularly those who are neurodivergent. She recalls the tragic…',
-  },
-  {
-    title: "The Autopsy of Nurospicy Betrayal",
-    excerpt:
-      "In the podcast episode of Femme on the Spectrum, host Elizabeth examines the complicated downfall of a once strong bond with her brother. She retracts the stages of their relationship, detailing a backstory fraught with familial toxicity and…",
-  },
-  {
-    title: 'The Accountability Trap (or, Why "I\'m Sorry" is Never Enough)',
-    excerpt:
-      'In this episode of "Femme on the Spectrum," host Elizabeth discusses the complexities of dealing with criticism and misunderstandings from a neurodivergent perspective. She highlights the autistic tendency to provide exhaustive context in an attempt…',
-  },
-];
+interface ApiEpisode {
+  guid: string;
+  title: string;
+  description: string;
+  pubDate: string;
+  audioUrl: string | null;
+  episodeNumber: number | null;
+  artworkUrl: string | null;
+  link: string | null;
+}
+
+interface EpisodesResponse {
+  episodes: ApiEpisode[];
+}
 
 const EpisodesSection = () => {
+  const { data, isLoading } = useQuery<EpisodesResponse>({
+    queryKey: ["episodes"],
+    queryFn: async () => {
+      const res = await fetch("/api/episodes");
+      if (!res.ok) throw new Error("Failed to load episodes");
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 15,
+  });
+
+  const recent = (data?.episodes ?? []).slice(0, 3);
+
   return (
     <section id="episodes" className="section-padding">
       <div className="max-w-6xl mx-auto">
@@ -35,30 +45,47 @@ const EpisodesSection = () => {
           </a>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {episodes.map((episode, index) => (
-            <a
-              key={index}
-              href="#"
-              className="group block fade-in"
-              style={{ animationDelay: `${index * 0.15}s` }}
-            >
-              <div className="overflow-hidden rounded-2xl mb-4">
-                <img
-                  src={episodeThumb}
-                  alt={episode.title}
-                  className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <h3 className="text-sm font-body font-semibold text-foreground group-hover:text-primary transition-colors leading-snug mb-2">
-                {episode.title}
-              </h3>
-              <p className="text-xs font-body text-muted-foreground leading-relaxed">
-                {episode.excerpt}
-              </p>
-            </a>
-          ))}
-        </div>
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="animate-spin text-primary" size={28} />
+          </div>
+        )}
+
+        {!isLoading && recent.length === 0 && (
+          <p className="font-body text-muted-foreground">
+            New episodes coming soon. Meanwhile,{" "}
+            <a href="/episodes" className="text-primary underline">see all platforms</a>.
+          </p>
+        )}
+
+        {!isLoading && recent.length > 0 && (
+          <div className="grid md:grid-cols-3 gap-8">
+            {recent.map((episode, index) => (
+              <a
+                key={episode.guid}
+                href={episode.link || "/episodes"}
+                target={episode.link ? "_blank" : undefined}
+                rel={episode.link ? "noopener noreferrer" : undefined}
+                className="group block fade-in"
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <div className="overflow-hidden rounded-2xl mb-4">
+                  <img
+                    src={episode.artworkUrl || episodeThumb}
+                    alt={episode.title}
+                    className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+                <h3 className="text-sm font-body font-semibold text-foreground group-hover:text-primary transition-colors leading-snug mb-2">
+                  {episode.title}
+                </h3>
+                <p className="text-xs font-body text-muted-foreground leading-relaxed">
+                  {episode.description}
+                </p>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

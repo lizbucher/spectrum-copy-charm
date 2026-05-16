@@ -1,5 +1,5 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.jpg";
 
 const footerLinks = [
   { label: "Home", href: "/" },
@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-3 gap-10 items-start">
           {/* Logo & tagline */}
           <div>
-            <img src={logo} alt="Femme on the Spectrum" className="h-12 w-auto mb-4 brightness-0 invert" />
+            <img src={logo} alt="Femme on the Spectrum" className="h-20 md:h-24 w-auto mb-4 rounded-lg" />
             <p className="text-sm text-primary-foreground/60 font-body leading-relaxed">
               A podcast for women who were told they're "too much" — and are finally realizing they were always just right.
             </p>

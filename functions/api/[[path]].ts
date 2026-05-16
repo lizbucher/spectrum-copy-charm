@@ -217,12 +217,119 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   return json({ success: true });
 }
 
+const BUZZSPROUT_RSS_URL = "https://feeds.buzzsprout.com/2617075.rss";
+
+interface RssEpisode {
+  guid: string;
+  title: string;
+  description: string;
+  pubDate: string;
+  audioUrl: string | null;
+  durationSec: number | null;
+  episodeNumber: number | null;
+  artworkUrl: string | null;
+  link: string | null;
+}
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
+function stripHtml(s: string): string {
+  return s.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+}
+
+function parseDurationToSec(s: string): number | null {
+  const t = s.trim();
+  if (!t) return null;
+  if (/^\d+$/.test(t)) return parseInt(t, 10);
+  const parts = t.split(":").map((p) => parseInt(p, 10));
+  if (parts.some(isNaN)) return null;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return null;
+}
+
+function pick(tag: string, block: string): string {
+  const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
+  const m = block.match(re);
+  return m ? decodeEntities(m[1]).trim() : "";
+}
+
+function pickAttr(tag: string, attr: string, block: string): string | null {
+  const re = new RegExp(`<${tag}[^>]*\\b${attr}=["']([^"']+)["'][^>]*>`, "i");
+  const m = block.match(re);
+  return m ? m[1] : null;
+}
+
+function parseRss(xml: string): RssEpisode[] {
+  const items: RssEpisode[] = [];
+  const itemRe = /<item[\s\S]*?<\/item>/g;
+  const blocks = xml.match(itemRe) || [];
+  for (const block of blocks) {
+    const title = pick("title", block);
+    const descRaw = pick("description", block) || pick("itunes:summary", block);
+    const description = stripHtml(descRaw).slice(0, 600);
+    const pubDate = pick("pubDate", block);
+    const guid = pick("guid", block) || pubDate + title;
+    const audioUrl = pickAttr("enclosure", "url", block);
+    const duration = pick("itunes:duration", block);
+    const epNum = pick("itunes:episode", block);
+    const artwork = pickAttr("itunes:image", "href", block);
+    const link = pick("link", block);
+    items.push({
+      guid,
+      title,
+      description,
+      pubDate,
+      audioUrl,
+      durationSec: duration ? parseDurationToSec(duration) : null,
+      episodeNumber: epNum ? parseInt(epNum, 10) : null,
+      artworkUrl: artwork,
+      link: link || null,
+    });
+  }
+  return items;
+}
+
+async function handleEpisodes(request: Request): Promise<Response> {
+  const cache = (caches as any).default as Cache | undefined;
+  const cacheKey = new Request(BUZZSPROUT_RSS_URL, { method: "GET" });
+  if (cache) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
+  const upstream = await fetch(BUZZSPROUT_RSS_URL, {
+    headers: { "User-Agent": "FemmeOnTheSpectrum-Site/1.0" },
+  });
+  if (!upstream.ok) {
+    return json({ error: "Failed to fetch RSS", status: upstream.status }, 502);
+  }
+  const xml = await upstream.text();
+  const episodes = parseRss(xml);
+  const showTitle = pick("title", xml.split("<item")[0] || "");
+  const res = json({ show: { title: showTitle, feedUrl: BUZZSPROUT_RSS_URL }, episodes });
+  res.headers.set("Cache-Control", "public, max-age=900, s-maxage=900");
+  if (cache) {
+    try { await cache.put(cacheKey, res.clone()); } catch {}
+  }
+  return res;
+}
+
 export const onRequest = async (context: PagesContext): Promise<Response> => {
   const { request, env } = context;
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders() });
   const path = new URL(request.url).pathname;
   try {
     if (path === "/api/health") return json({ ok: true, time: new Date().toISOString() });
+    if (path === "/api/episodes" && request.method === "GET") return await handleEpisodes(request);
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
     switch (path) {
       case "/api/quiz-results": return await handleQuizResults(request, env);

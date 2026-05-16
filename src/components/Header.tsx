@@ -18,7 +18,7 @@ const Header = () => {
       <div className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-4">
         <div className="flex-1" />
         <a href="#" className="flex items-center">
-          <img src={logo} alt="Femme on the Spectrum" className="h-14 md:h-16 w-auto" />
+          <img src={logo} alt="Femme on the Spectrum" className="h-20 md:h-24 w-auto" />
         </a>
         <nav className="hidden md:flex items-center gap-8 flex-1 justify-end">
           {navLinks.map((link) => (
