@@ -7,10 +7,12 @@ import amazonMusicIcon from "@/assets/amazon-music-icon.png";
 import applePodcastsIcon from "@/assets/apple-podcasts-icon.png";
 import iheartIcon from "@/assets/iheart-icon.png";
 
+const BUZZSPROUT_LISTEN_URL = "https://www.buzzsprout.com/2617075";
+
 const platformLinks = [
   { icon: spotifyIcon, alt: "Spotify", href: "https://open.spotify.com/show/59IYYFkvsbUh3Su78ltJhx" },
   { icon: amazonMusicIcon, alt: "Amazon Music", href: "https://music.amazon.com/podcasts/b17d41b2-d62e-4e88-a625-37d2769f17dc" },
-  { icon: applePodcastsIcon, alt: "Apple Podcasts", href: "https://podcasts.apple.com/us/podcast/femme-on-the-spectrum-autism-high-functioning-female/id1772086556" },
+  { icon: applePodcastsIcon, alt: "Apple Podcasts (coming soon)", href: BUZZSPROUT_LISTEN_URL },
   { icon: iheartIcon, alt: "iHeart Radio", href: "https://iheart.com/podcast/223164906" },
 ];
 
